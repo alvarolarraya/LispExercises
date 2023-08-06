@@ -1,0 +1,87 @@
+(defun cambiaFilaPrimeraUltima (matriz dimensionFila dimensionColumna)
+	(let ((solucion (make-array (list dimensionFila dimensionColumna))))
+		(dotimes (i dimensionFila)
+			(dotimes (j dimensionColumna)
+				(cond
+					((= i 0) 
+						(setf (aref solucion i j) (aref matriz (- dimensionFila 1) j))
+					)
+					((= i (- dimensionFila 1))
+						(setf (aref solucion i j) (aref matriz 0 j))
+					)
+					(t 
+						(setf (aref solucion i j) (aref matriz i j))
+					)
+				)
+			)
+		)
+		solucion
+	)
+)
+
+(defun cambiaColumnaPrimeraUltima (matriz dimensionFila dimensionColumna)
+	(let ((solucion (make-array (list dimensionFila dimensionColumna))))
+		(dotimes (i dimensionFila)
+			(dotimes (j dimensionColumna)
+				(cond
+					((= j 0) 
+						(setf (aref solucion i j) (aref matriz i (- dimensionColumna 1)))
+					)
+					((= j (- dimensionColumna 1))
+						(setf (aref solucion i j) (aref matriz i 0))
+					)
+					(t 
+						(setf (aref solucion i j) (aref matriz i j))
+					)
+				)
+			)
+		)
+		solucion
+	)
+)
+
+(defun cambiaColumnaYFilaPrimeraUltima (matriz dimensionFila dimensionColumna)
+	(cambiaColumnaPrimeraUltima (cambiaFilaPrimeraUltima matriz dimensionFila dimensionColumna) dimensionFila dimensionColumna)
+)
+
+(defun operaElemento (matriz mascara dimensionFila DimensionColumna)
+	(let ((resultado 0))
+		(dotimes (i dimensionFila)
+			(dotimes (j dimensionColumna)
+				(setf resultado (+ resultado (* (aref matriz i j) (aref mascara i j))))
+			)
+		)
+		resultado
+	)
+)
+
+(defun convolucionSabiendoDimensiones (matriz mascara dimensionFila dimensionColumna)
+	(let ((solucion (make-array (list dimensionFila dimensionColumna))) (auxiliar (make-array '(3 3))))
+		(dotimes (i dimensionFila)
+			(dotimes (j dimensionColumna)
+				(cond
+					((or (= j 0) (= i 0) (= j (- dimensionColumna 1)) (= i (- dimensionFila 1)))
+						(setf (aref solucion i j) (aref matriz i j))
+					)
+					(t 
+						(dotimes (k 3)
+							(dotimes (l 3)
+								(setf (aref auxiliar k l) (aref matriz (+ k (- i 1)) (+ l (- j 1))))
+							)
+						)
+						(setf (aref solucion i j) (operaElemento auxiliar mascara 3 3))
+					)
+				)
+			)
+		)
+		solucion
+	)
+)
+
+(defun convolucion (matriz mascara)
+	(convolucionSabiendoDimensiones matriz mascara (car (array-dimensions matriz)) (cadr (array-dimensions matriz)))
+)
+
+(setf *mascara* (make-array '(3 3):initial-contents'((-2 -1 0)(-1 1 1)(0 1 2))))
+(setf *matriz* (make-array '(5 5):initial-contents'((35 40 41 45 50)(40 40 42 46 52)(42 46 50 55 55)(48 52 56 58 60)(56 60 65 70 75))))
+(convolucion *matriz* *mascara*)

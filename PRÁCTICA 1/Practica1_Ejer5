@@ -1,0 +1,1 @@
+(defun insertar  (valor lista) (cond ((null lista) nil) ((< valor (car lista)) (cons valor lista)) (t (cons (car lista)(insertar valor (cdr lista))))))
